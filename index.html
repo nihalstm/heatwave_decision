@@ -89,16 +89,6 @@
       border: 1px solid #e5e7eb;
       border-bottom-left-radius: 4px;
     }
-
-    .verdict {
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .verdict.PROCEED { color: #047857; }
-    .verdict.MODIFY  { color: #b45309; }
-    .verdict.AVOID   { color: #b91c1c; }
-
   </style>
 </head>
 
@@ -129,6 +119,8 @@
   <script>
     const chat = document.getElementById("chat");
     let lastPayload = null;
+
+    const API_BASE = "https://heatwave-decision.onrender.com";
 
     function addMessage(text, type) {
       const div = document.createElement("div");
@@ -168,7 +160,7 @@
       };
 
       const res = await fetch(
-        "http://127.0.0.1:8000/heatwave/planning",
+        `${API_BASE}/heatwave/planning`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -202,10 +194,13 @@ ${data.planning_explanation}`;
     }
 
     async function downloadPDF() {
-      if (!lastPayload) return alert("Run an analysis first.");
+      if (!lastPayload) {
+        alert("Run an analysis first.");
+        return;
+      }
 
       const res = await fetch(
-        "http://127.0.0.1:8000/heatwave/planning/pdf",
+        `${API_BASE}/heatwave/planning/pdf`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
