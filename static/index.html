@@ -6,9 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -22,7 +20,7 @@
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      height: 100dvh; /* mobile-safe viewport */
+      height: 100dvh;
     }
 
     header {
@@ -41,6 +39,11 @@
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 10px;
+      transition: opacity 0.2s ease;
+    }
+
+    .controls.hidden {
+      display: none;
     }
 
     .controls input,
@@ -97,14 +100,10 @@
       border-bottom-left-radius: 4px;
     }
 
-    /* -------- MOBILE ADAPTATION -------- */
+    /* -------- MOBILE -------- */
     @media (max-width: 768px) {
       .controls {
         grid-template-columns: 1fr;
-      }
-
-      .controls button {
-        width: 100%;
       }
 
       header {
@@ -124,19 +123,19 @@
     <header>Heatwave Planning Assistant</header>
 
     <!-- INPUT PANEL -->
-    <div class="controls">
+    <div class="controls" id="inputPanel">
       <input id="userInput" placeholder="Describe your plan (e.g. Work, school trip)" />
       <input id="locationInput" placeholder="Location" />
       <input id="dateInput" type="date" />
       <input id="timeInput" type="time" />
-      <button onclick="send()">Analyze</button>
+      <button id="analyzeBtn" onclick="send()">Analyze</button>
     </div>
 
     <!-- CHAT -->
     <div class="chat" id="chat"></div>
 
     <!-- PDF ACTION -->
-    <div class="controls">
+    <div class="controls" id="pdfPanel">
       <button class="secondary" onclick="downloadPDF()">
         Download Planning PDF
       </button>
@@ -145,9 +144,26 @@
 
   <script>
     const chat = document.getElementById("chat");
+    const inputPanel = document.getElementById("inputPanel");
+    const pdfPanel = document.getElementById("pdfPanel");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+
     let lastPayload = null;
+    let isProcessing = false;
 
     const API_BASE = "https://heatwave-decision.onrender.com";
+
+    function hideInputs() {
+      inputPanel.classList.add("hidden");
+      pdfPanel.classList.add("hidden");
+    }
+
+    function showInputs() {
+      inputPanel.classList.remove("hidden");
+      pdfPanel.classList.remove("hidden");
+      isProcessing = false;
+      analyzeBtn.disabled = false;
+    }
 
     function addMessage(text, type) {
       const div = document.createElement("div");
@@ -168,6 +184,8 @@
     }
 
     async function send() {
+      if (isProcessing) return;
+
       const activity = userInput.value.trim();
       const location = locationInput.value.trim();
       const date = dateInput.value;
@@ -175,8 +193,11 @@
 
       if (!activity || !location || !date) return;
 
-      addMessage(activity, "user");
+      isProcessing = true;
+      analyzeBtn.disabled = true;
+      hideInputs();
 
+      addMessage(activity, "user");
       const assistantBubble = addMessage("Analyzing conditions…", "assistant");
 
       lastPayload = {
@@ -186,15 +207,16 @@
         time: time || null
       };
 
-      const res = await fetch(`${API_BASE}/heatwave/planning`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(lastPayload)
-      });
+      try {
+        const res = await fetch(`${API_BASE}/heatwave/planning`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(lastPayload)
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      const formatted =
+        const formatted =
 `Planning Decision:
 ${data.decision.verdict}
 
@@ -211,7 +233,12 @@ ${date}
 
 ${data.planning_explanation}`;
 
-      await typeText(assistantBubble, formatted);
+        await typeText(assistantBubble, formatted);
+      } catch (err) {
+        assistantBubble.textContent = "Something went wrong. Please try again.";
+      } finally {
+        showInputs();
+      }
     }
 
     async function downloadPDF() {
