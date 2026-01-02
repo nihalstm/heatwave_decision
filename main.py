@@ -11,11 +11,21 @@ from risk_engine import generate_risk_timeline, derive_planning_decision
 from llm_client import generate_planning_explanation
 from pdf_generator import generate_planning_pdf
 from nlp.intent_detector import detect_intent
+from fastapi.responses import HTMLResponse
+
+import os
+
 
 app = FastAPI(
     title="Heatwave Decision Support API",
     version="1.2.0"
 )
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+@app.get("/ui", response_class=HTMLResponse)
+def serve_ui():
+    with open(os.path.join(BASE_DIR, "static", "index.html"), "r", encoding="utf-8") as f:
+        return f.read()
 
 app.add_middleware(
     CORSMiddleware,
