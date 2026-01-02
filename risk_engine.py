@@ -120,7 +120,7 @@ def derive_planning_decision(risk_timeline: list, intent: str) -> dict:
             "verdict": "AVOID",
             "reason": (
                 "Exposure during high or extreme heat hours is unsafe "
-                "for student group activities."
+                "for outdoor activities it is advised to stay indoors."
             )
         }
 
@@ -137,6 +137,6 @@ def derive_planning_decision(risk_timeline: list, intent: str) -> dict:
         "verdict": "PROCEED",
         "reason": (
             "Forecasted conditions are typical for the region and season. "
-            "Standard school trip precautions are sufficient."
+            "Standard heat precautions such as hydration and rest breaks are sufficient."
         )
     }
