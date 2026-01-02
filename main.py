@@ -97,6 +97,9 @@ def generate_planning_insight(request: PlanningRequest):
         "planning_explanation": explanation
     }
 
+@app.get("/")
+def health_check():
+    return {"status": "ok"}
 
 # -------- PDF ENDPOINT --------
 @app.post("/heatwave/planning/pdf")
