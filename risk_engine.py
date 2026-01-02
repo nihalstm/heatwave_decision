@@ -129,7 +129,7 @@ def derive_planning_decision(risk_timeline: list, intent: str) -> dict:
             "verdict": "MODIFY",
             "reason": (
                 "Sustained moderate heat during core activity hours may affect "
-                "student comfort; scheduling adjustments are advised."
+                "Standard heat precautions such as hydration and rest breaks are sufficient."
             )
         }
 
