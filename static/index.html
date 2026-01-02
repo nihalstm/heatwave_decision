@@ -6,6 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Inter, system-ui, sans-serif;
@@ -18,41 +22,42 @@
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      height: 100dvh; /* mobile-safe viewport */
     }
 
     header {
-      padding: 16px 24px;
+      padding: 14px 20px;
       background: #ffffff;
       border-bottom: 1px solid #e5e7eb;
       font-weight: 700;
-      font-size: 18px;
+      font-size: 17px;
     }
 
     /* -------- INPUT PANEL -------- */
     .controls {
       background: #ffffff;
       border-bottom: 1px solid #e5e7eb;
-      padding: 16px 24px;
+      padding: 14px;
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr auto;
+      grid-template-columns: repeat(5, 1fr);
       gap: 10px;
     }
 
-    .controls input {
+    .controls input,
+    .controls button {
       padding: 10px 12px;
       border-radius: 8px;
-      border: 1px solid #d1d5db;
       font-size: 14px;
     }
 
+    .controls input {
+      border: 1px solid #d1d5db;
+    }
+
     .controls button {
-      padding: 10px 16px;
-      border-radius: 8px;
       border: none;
       background: #2563eb;
       color: white;
-      font-size: 14px;
       cursor: pointer;
     }
 
@@ -63,17 +68,19 @@
     /* -------- CHAT -------- */
     .chat {
       flex: 1;
-      padding: 24px;
+      padding: 16px;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .message {
-      max-width: 80%;
-      padding: 14px 16px;
+      max-width: 85%;
+      padding: 12px 14px;
       border-radius: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       white-space: pre-wrap;
       line-height: 1.6;
+      word-wrap: break-word;
     }
 
     .user {
@@ -89,6 +96,26 @@
       border: 1px solid #e5e7eb;
       border-bottom-left-radius: 4px;
     }
+
+    /* -------- MOBILE ADAPTATION -------- */
+    @media (max-width: 768px) {
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .controls button {
+        width: 100%;
+      }
+
+      header {
+        font-size: 16px;
+        text-align: center;
+      }
+
+      .message {
+        max-width: 95%;
+      }
+    }
   </style>
 </head>
 
@@ -98,7 +125,7 @@
 
     <!-- INPUT PANEL -->
     <div class="controls">
-      <input id="userInput" placeholder="Describe your plan (e.g. School trip)" />
+      <input id="userInput" placeholder="Describe your plan (e.g. Work, school trip)" />
       <input id="locationInput" placeholder="Location" />
       <input id="dateInput" type="date" />
       <input id="timeInput" type="time" />
@@ -159,28 +186,22 @@
         time: time || null
       };
 
-      const res = await fetch(
-        `${API_BASE}/heatwave/planning`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(lastPayload)
-        }
-      );
+      const res = await fetch(`${API_BASE}/heatwave/planning`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(lastPayload)
+      });
 
       const data = await res.json();
 
-      const verdictBlock =
+      const formatted =
 `Planning Decision:
 ${data.decision.verdict}
 
 Reason:
 ${data.decision.reason}
 
-────────────────────────`;
-
-      const formatted =
-`${verdictBlock}
+────────────────────────
 
 Location:
 ${data.location}
@@ -199,14 +220,11 @@ ${data.planning_explanation}`;
         return;
       }
 
-      const res = await fetch(
-        `${API_BASE}/heatwave/planning/pdf`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(lastPayload)
-        }
-      );
+      const res = await fetch(`${API_BASE}/heatwave/planning/pdf`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(lastPayload)
+      });
 
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
