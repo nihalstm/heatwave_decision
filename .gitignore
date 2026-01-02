@@ -1,0 +1,19 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.env
+.env.*
+
+# OS / editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Generated artifacts
+heatwave_planning_summary.pdf
+
+# Logs
+*.log

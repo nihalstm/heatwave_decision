@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>School Trip Heat Risk Planning – Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --green: #16a34a;
+      --red: #dc2626;
+      --green-bg: #ecfdf5;
+      --red-bg: #fef2f2;
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    header {
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .controls {
+      margin: 30px 0;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    }
+
+    .btn.active.normal {
+      background: var(--green-bg);
+      border-color: var(--green);
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .btn.active.extreme {
+      background: var(--red-bg);
+      border-color: var(--red);
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      margin-bottom: 24px;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .meta div {
+      color: var(--muted);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .status {
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .status.safe {
+      background: var(--green-bg);
+      border-left: 6px solid var(--green);
+    }
+
+    .status.danger {
+      background: var(--red-bg);
+      border-left: 6px solid var(--red);
+    }
+
+    .status strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      font-size: 14px;
+    }
+
+    .fact {
+      background: #f9fafb;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <header>
+      <h1>Outdoor Heat Risk Planning</h1>
+      <div class="subtitle">
+        Decision-support demo for school trip scheduling under varying heat conditions
+      </div>
+    </header>
+
+    <div class="controls">
+      <button class="btn normal active" onclick="loadNormal()">Normal Conditions</button>
+      <button class="btn extreme" onclick="loadExtreme()">Extreme Heatwave</button>
+    </div>
+
+    <div class="card">
+      <div class="meta">
+        <div><strong>Purpose:</strong> School Trip Planning</div>
+        <div><strong>Location:</strong> 12.97, 77.59</div>
+        <div><strong>Date:</strong> <span id="date">02 January 2026</span></div>
+      </div>
+
+      <div id="statusBox" class="status safe">
+        <strong id="statusTitle">Low Heat Risk Identified</strong>
+        <p id="explanation"></p>
+      </div>
+
+      <div>
+        <div class="section-title">Key Forecast Highlights</div>
+        <div class="facts">
+          <div class="fact">
+            <strong>Maximum Temperature</strong><br/>
+            <span id="temp"></span>
+          </div>
+          <div class="fact">
+            <strong>Peak Relative Humidity</strong><br/>
+            <span id="humidity"></span>
+          </div>
+          <div class="fact">
+            <strong>High-Risk Time Periods</strong><br/>
+            <span id="riskHours"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      This demo illustrates how forecast data is translated into planning-oriented heat risk insights.
+      It does not replace official weather advisories or on-site judgment.
+    </footer>
+
+  </div>
+
+  <script>
+    const explanationEl = document.getElementById("explanation");
+    const statusBox = document.getElementById("statusBox");
+    const statusTitle = document.getElementById("statusTitle");
+    const tempEl = document.getElementById("temp");
+    const humidityEl = document.getElementById("humidity");
+    const riskHoursEl = document.getElementById("riskHours");
+
+    function setActive(type) {
+      document.querySelectorAll(".btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelector(".btn." + type).classList.add("active");
+    }
+
+    function loadNormal() {
+      setActive("normal");
+      statusBox.className = "status safe";
+      statusTitle.textContent = "Low Heat Risk Identified";
+      explanationEl.textContent =
+        "Forecast conditions do not indicate a significant heatwave risk for the selected date. " +
+        "Maximum temperatures are expected to remain within moderate ranges, and most hours fall " +
+        "within lower-risk thresholds suitable for outdoor school activities.";
+      tempEl.textContent = "27.2 °C";
+      humidityEl.textContent = "93 %";
+      riskHoursEl.textContent = "None identified";
+    }
+
+    function loadExtreme() {
+      setActive("extreme");
+      statusBox.className = "status danger";
+      statusTitle.textContent = "Elevated Heat Risk Identified";
+      explanationEl.textContent =
+        "Forecast conditions indicate elevated heat stress risk during mid-day hours due to high " +
+        "temperatures and sustained heat exposure. Outdoor school activities during peak hours may " +
+        "require rescheduling or additional planning considerations.";
+      tempEl.textContent = "43.5 °C";
+      humidityEl.textContent = "62 %";
+      riskHoursEl.textContent = "11:00 – 15:00";
+    }
+
+    // Load default state
+    loadNormal();
+  </script>
+</body>
+</html>
