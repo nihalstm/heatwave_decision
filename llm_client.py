@@ -52,8 +52,10 @@ def generate_planning_explanation(
                 "with attention to prolonged physical activity and heat stress."
             )
         else:
+            # General / work / unspecified activity
             explanation_lines.append(
-                "This planning summary considers general outdoor activity conditions."
+                "This planning summary considers general outdoor activity and work conditions, "
+                "with attention to comfort, hydration, and heat exposure."
             )
 
     explanation_lines.append("")
@@ -62,7 +64,6 @@ def generate_planning_explanation(
     if hour_context:
         time_label = hour_context.get("time")
         temp = hour_context.get("temperature")
-        humidity = hour_context.get("humidity")
         risk_level = hour_context.get("risk_level")
 
         explanation_lines.append(
