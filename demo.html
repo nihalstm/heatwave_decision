@@ -18,13 +18,11 @@
       --border: #e5e7eb;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: Inter, system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
@@ -37,11 +35,11 @@
     }
 
     header {
-      margin-bottom: 30px;
+      margin-bottom: 24px;
     }
 
     h1 {
-      margin: 0 0 8px 0;
+      margin: 0 0 6px 0;
       font-size: 28px;
       font-weight: 700;
     }
@@ -51,8 +49,9 @@
       font-size: 15px;
     }
 
+    /* -------- CONTROLS -------- */
     .controls {
-      margin: 30px 0;
+      margin: 24px 0;
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
@@ -87,23 +86,27 @@
       font-weight: 600;
     }
 
+    /* -------- CARD -------- */
     .card {
       background: var(--card);
       border-radius: 12px;
       padding: 24px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.06);
       margin-bottom: 24px;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .card.fade {
+      opacity: 0.6;
+      transform: scale(0.995);
     }
 
     .meta {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 20px;
+      gap: 14px;
+      margin-bottom: 18px;
       font-size: 14px;
-    }
-
-    .meta div {
       color: var(--muted);
     }
 
@@ -113,10 +116,12 @@
       margin-bottom: 12px;
     }
 
+    /* -------- STATUS -------- */
     .status {
       padding: 16px;
       border-radius: 10px;
       margin-bottom: 20px;
+      transition: background 0.3s ease;
     }
 
     .status.safe {
@@ -135,10 +140,11 @@
       font-size: 15px;
     }
 
+    /* -------- FACTS -------- */
     .facts {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
       font-size: 14px;
     }
 
@@ -154,6 +160,15 @@
       font-size: 12px;
       color: var(--muted);
       text-align: center;
+    }
+
+    /* -------- MOBILE -------- */
+    @media (max-width: 640px) {
+      h1 { font-size: 22px; }
+      .container { margin: 20px auto; }
+      .card { padding: 18px; }
+      .controls { justify-content: stretch; }
+      .btn { flex: 1; text-align: center; }
     }
   </style>
 </head>
@@ -173,7 +188,7 @@
       <button class="btn extreme" onclick="loadExtreme()">Extreme Heatwave</button>
     </div>
 
-    <div class="card">
+    <div id="card" class="card">
       <div class="meta">
         <div><strong>Purpose:</strong> School Trip Planning</div>
         <div><strong>Location:</strong> 12.97, 77.59</div>
@@ -218,39 +233,49 @@
     const tempEl = document.getElementById("temp");
     const humidityEl = document.getElementById("humidity");
     const riskHoursEl = document.getElementById("riskHours");
+    const card = document.getElementById("card");
 
     function setActive(type) {
       document.querySelectorAll(".btn").forEach(btn => btn.classList.remove("active"));
       document.querySelector(".btn." + type).classList.add("active");
     }
 
+    function transition(updateFn) {
+      card.classList.add("fade");
+      setTimeout(() => {
+        updateFn();
+        card.classList.remove("fade");
+      }, 180);
+    }
+
     function loadNormal() {
       setActive("normal");
-      statusBox.className = "status safe";
-      statusTitle.textContent = "Low Heat Risk Identified";
-      explanationEl.textContent =
-        "Forecast conditions do not indicate a significant heatwave risk for the selected date. " +
-        "Maximum temperatures are expected to remain within moderate ranges, and most hours fall " +
-        "within lower-risk thresholds suitable for outdoor school activities.";
-      tempEl.textContent = "27.2 °C";
-      humidityEl.textContent = "93 %";
-      riskHoursEl.textContent = "None identified";
+      transition(() => {
+        statusBox.className = "status safe";
+        statusTitle.textContent = "Low Heat Risk Identified";
+        explanationEl.textContent =
+          "Forecast conditions do not indicate a significant heatwave risk for the selected date. " +
+          "Maximum temperatures remain within moderate ranges suitable for outdoor school activities.";
+        tempEl.textContent = "27.2 °C";
+        humidityEl.textContent = "93 %";
+        riskHoursEl.textContent = "None identified";
+      });
     }
 
     function loadExtreme() {
       setActive("extreme");
-      statusBox.className = "status danger";
-      statusTitle.textContent = "Elevated Heat Risk Identified";
-      explanationEl.textContent =
-        "Forecast conditions indicate elevated heat stress risk during mid-day hours due to high " +
-        "temperatures and sustained heat exposure. Outdoor school activities during peak hours may " +
-        "require rescheduling or additional planning considerations.";
-      tempEl.textContent = "43.5 °C";
-      humidityEl.textContent = "62 %";
-      riskHoursEl.textContent = "11:00 – 15:00";
+      transition(() => {
+        statusBox.className = "status danger";
+        statusTitle.textContent = "Elevated Heat Risk Identified";
+        explanationEl.textContent =
+          "Forecast conditions indicate elevated heat stress risk during mid-day hours. " +
+          "Outdoor school activities may require rescheduling or mitigation planning.";
+        tempEl.textContent = "43.5 °C";
+        humidityEl.textContent = "62 %";
+        riskHoursEl.textContent = "11:00 – 15:00";
+      });
     }
 
-    // Load default state
     loadNormal();
   </script>
 </body>

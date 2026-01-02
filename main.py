@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 
 from schemas import PlanningRequest
 from weather_client import fetch_hourly_forecast
@@ -11,7 +11,6 @@ from risk_engine import generate_risk_timeline, derive_planning_decision
 from llm_client import generate_planning_explanation
 from pdf_generator import generate_planning_pdf
 from nlp.intent_detector import detect_intent
-from fastapi.responses import HTMLResponse
 
 import os
 
@@ -20,13 +19,22 @@ app = FastAPI(
     title="Heatwave Decision Support API",
     version="1.2.0"
 )
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
+# -------- UI SERVING --------
 @app.get("/ui", response_class=HTMLResponse)
 def serve_ui():
-    with open(os.path.join(BASE_DIR, "static", "index.html"), "r", encoding="utf-8") as f:
+    with open(
+        os.path.join(BASE_DIR, "static", "index.html"),
+        "r",
+        encoding="utf-8"
+    ) as f:
         return f.read()
 
+
+# -------- CORS --------
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -52,6 +60,12 @@ def find_hour_context(risk_timeline: list, time_str: str | None):
     return None
 
 
+# -------- HEALTH CHECK --------
+@app.get("/")
+def health_check():
+    return {"status": "ok"}
+
+
 # -------- MAIN JSON ENDPOINT --------
 @app.post("/heatwave/planning")
 def generate_planning_insight(request: PlanningRequest):
@@ -66,7 +80,6 @@ def generate_planning_insight(request: PlanningRequest):
         geo["longitude"],
         request.date
     )
-
     if not forecast:
         raise HTTPException(status_code=404, detail="No forecast data available")
 
@@ -76,19 +89,19 @@ def generate_planning_insight(request: PlanningRequest):
     # --- Risk analysis ---
     result = generate_risk_timeline(forecast)
 
-    # --- Decision derivation (NEW) ---
+    # --- Planning decision ---
     decision = derive_planning_decision(
         risk_timeline=result["risk_timeline"],
         intent=intent
     )
 
-    # --- Optional hour focus ---
+    # --- Optional time focus ---
     hour_context = find_hour_context(
         result["risk_timeline"],
         request.time
     )
 
-    # --- Deterministic explanation ---
+    # --- Deterministic explanation (SOURCE OF TRUTH) ---
     explanation = generate_planning_explanation(
         summary_facts=result["summary_facts"],
         intent=intent,
@@ -107,9 +120,6 @@ def generate_planning_insight(request: PlanningRequest):
         "planning_explanation": explanation
     }
 
-@app.get("/")
-def health_check():
-    return {"status": "ok"}
 
 # -------- PDF ENDPOINT --------
 @app.post("/heatwave/planning/pdf")
@@ -125,7 +135,6 @@ def generate_planning_pdf_endpoint(request: PlanningRequest):
         geo["longitude"],
         request.date
     )
-
     if not forecast:
         raise HTTPException(status_code=404, detail="No forecast data available")
 
@@ -135,18 +144,19 @@ def generate_planning_pdf_endpoint(request: PlanningRequest):
     # --- Risk analysis ---
     result = generate_risk_timeline(forecast)
 
-    # --- Decision derivation ---
+    # --- Planning decision ---
     decision = derive_planning_decision(
         risk_timeline=result["risk_timeline"],
         intent=intent
     )
 
-    # --- Time focus ---
+    # --- Optional time focus ---
     hour_context = find_hour_context(
         result["risk_timeline"],
         request.time
     )
 
+    # --- Deterministic explanation ---
     explanation = generate_planning_explanation(
         summary_facts=result["summary_facts"],
         intent=intent,
