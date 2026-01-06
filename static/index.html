@@ -6,113 +6,327 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    * { box-sizing: border-box; }
+    * { 
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
-      margin: 0;
-      font-family: Inter, system-ui, sans-serif;
-      background: #f4f6fb;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: #1f2937;
+      overflow: hidden;
     }
 
     .app {
-      max-width: 900px;
+      max-width: 1000px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
       height: 100dvh;
+      padding: 20px;
+      gap: 20px;
     }
 
     header {
-      padding: 14px 20px;
-      background: #ffffff;
-      border-bottom: 1px solid #e5e7eb;
-      font-weight: 700;
-      font-size: 17px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 20px 28px;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    /* -------- INPUT PANEL -------- */
-    .controls {
-      background: #ffffff;
-      border-bottom: 1px solid #e5e7eb;
-      padding: 14px;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
-      transition: opacity 0.2s ease;
-    }
-
-    .controls.hidden {
-      display: none;
-    }
-
-    .controls input,
-    .controls button {
-      padding: 10px 12px;
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       border-radius: 8px;
-      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
     }
 
-    .controls input {
-      border: 1px solid #d1d5db;
+    .header-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1f2937;
     }
 
-    .controls button {
-      border: none;
-      background: #2563eb;
-      color: white;
-      cursor: pointer;
-    }
-
-    .controls button.secondary {
-      background: #111827;
+    /* -------- MAIN CONTAINER -------- */
+    .main-container {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     /* -------- CHAT -------- */
     .chat {
       flex: 1;
-      padding: 16px;
+      padding: 24px;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+
+    .chat::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .chat::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .chat::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 4px;
+    }
+
+    .chat::-webkit-scrollbar-thumb:hover {
+      background: #9ca3af;
+    }
+
+    .message-wrapper {
+      display: flex;
+      margin-bottom: 24px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-wrapper.user {
+      justify-content: flex-end;
+    }
+
+    .message-wrapper.assistant {
+      justify-content: flex-start;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      margin: 0 10px;
+    }
+
+    .avatar.user {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .avatar.assistant {
+      background: #f3f4f6;
+      color: #6b7280;
     }
 
     .message {
-      max-width: 85%;
-      padding: 12px 14px;
-      border-radius: 12px;
-      margin-bottom: 14px;
+      max-width: 70%;
+      padding: 14px 18px;
+      border-radius: 18px;
       white-space: pre-wrap;
       line-height: 1.6;
       word-wrap: break-word;
+      font-size: 15px;
     }
 
-    .user {
-      margin-left: auto;
-      background: #2563eb;
+    .message-wrapper.user .message {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border-bottom-right-radius: 4px;
     }
 
-    .assistant {
-      margin-right: auto;
-      background: #ffffff;
+    .message-wrapper.assistant .message {
+      background: #f9fafb;
+      color: #1f2937;
       border: 1px solid #e5e7eb;
       border-bottom-left-radius: 4px;
     }
 
+    /* -------- INPUT PANEL -------- */
+    .input-container {
+      padding: 20px 24px;
+      border-top: 1px solid #e5e7eb;
+      background: #ffffff;
+    }
+
+    .input-container.hidden {
+      display: none;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      background: #fafafa;
+    }
+
+    .input-wrapper input:focus {
+      outline: none;
+      border-color: #667eea;
+      background: #ffffff;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #analyzeBtn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    #analyzeBtn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+    }
+
+    #analyzeBtn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .secondary {
+      background: #ffffff;
+      color: #1f2937;
+      border: 2px solid #e5e7eb;
+    }
+
+    .secondary:hover:not(:disabled) {
+      background: #f9fafb;
+      border-color: #d1d5db;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #6b7280;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #1f2937;
+    }
+
+    .empty-description {
+      font-size: 15px;
+      max-width: 400px;
+    }
+
     /* -------- MOBILE -------- */
     @media (max-width: 768px) {
-      .controls {
-        grid-template-columns: 1fr;
+      .app {
+        padding: 10px;
+        gap: 10px;
       }
 
       header {
-        font-size: 16px;
-        text-align: center;
+        padding: 16px 20px;
+        border-radius: 12px;
+      }
+
+      .logo {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+      }
+
+      .header-title {
+        font-size: 18px;
+      }
+
+      .main-container {
+        border-radius: 12px;
+      }
+
+      .chat {
+        padding: 16px;
+      }
+
+      .input-grid {
+        grid-template-columns: 1fr;
       }
 
       .message {
-        max-width: 95%;
+        max-width: 85%;
+        font-size: 14px;
+      }
+
+      .avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+      }
+
+      .empty-title {
+        font-size: 20px;
+      }
+
+      .empty-icon {
+        font-size: 48px;
       }
     }
   </style>
@@ -120,32 +334,58 @@
 
 <body>
   <div class="app">
-    <header>Heatwave Planning Assistant</header>
+    <header>
+      <div class="logo">🌡️</div>
+      <div class="header-title">Heatwave Planning Assistant</div>
+    </header>
 
-    <!-- INPUT PANEL -->
-    <div class="controls" id="inputPanel">
-      <input id="userInput" placeholder="Describe your plan (e.g. Work, school trip)" />
-      <input id="locationInput" placeholder="Location" />
-      <input id="dateInput" type="date" />
-      <input id="timeInput" type="time" />
-      <button id="analyzeBtn" onclick="send()">Analyze</button>
-    </div>
+    <div class="main-container">
+      <!-- CHAT -->
+      <div class="chat" id="chat">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">☀️</div>
+          <div class="empty-title">Plan smarter in extreme heat</div>
+          <div class="empty-description">
+            Get AI-powered recommendations for your activities based on real-time heatwave conditions
+          </div>
+        </div>
+      </div>
 
-    <!-- CHAT -->
-    <div class="chat" id="chat"></div>
-
-    <!-- PDF ACTION -->
-    <div class="controls" id="pdfPanel">
-      <button class="secondary" onclick="downloadPDF()">
-        Download Planning PDF
-      </button>
+      <!-- INPUT PANEL -->
+      <div class="input-container" id="inputPanel">
+        <div class="input-grid">
+          <div class="input-wrapper">
+            <input id="userInput" placeholder="Describe your plan (e.g. outdoor workout, school trip)" />
+          </div>
+          <div class="input-wrapper">
+            <input id="locationInput" placeholder="Location" />
+          </div>
+          <div class="input-wrapper">
+            <input id="dateInput" type="date" />
+          </div>
+          <div class="input-wrapper">
+            <input id="timeInput" type="time" placeholder="Time (optional)" />
+          </div>
+        </div>
+        <div class="button-row">
+          <button id="analyzeBtn" onclick="send()">
+            <span>✨</span>
+            Analyze Conditions
+          </button>
+          <button class="secondary" id="pdfBtn" onclick="downloadPDF()" style="display: none;">
+            <span>📄</span>
+            Download PDF
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
     const chat = document.getElementById("chat");
+    const emptyState = document.getElementById("emptyState");
     const inputPanel = document.getElementById("inputPanel");
-    const pdfPanel = document.getElementById("pdfPanel");
+    const pdfBtn = document.getElementById("pdfBtn");
     const analyzeBtn = document.getElementById("analyzeBtn");
 
     let lastPayload = null;
@@ -153,32 +393,44 @@
 
     const API_BASE = "https://heatwave-decision.onrender.com";
 
-    function hideInputs() {
-      inputPanel.classList.add("hidden");
-      pdfPanel.classList.add("hidden");
-    }
-
-    function showInputs() {
-      inputPanel.classList.remove("hidden");
-      pdfPanel.classList.remove("hidden");
-      isProcessing = false;
-      analyzeBtn.disabled = false;
+    function hideEmpty() {
+      if (emptyState) {
+        emptyState.style.display = "none";
+      }
     }
 
     function addMessage(text, type) {
-      const div = document.createElement("div");
-      div.className = `message ${type}`;
-      div.textContent = text;
-      chat.appendChild(div);
+      hideEmpty();
+      
+      const wrapper = document.createElement("div");
+      wrapper.className = `message-wrapper ${type}`;
+      
+      const avatar = document.createElement("div");
+      avatar.className = `avatar ${type}`;
+      avatar.textContent = type === "user" ? "👤" : "🤖";
+      
+      const message = document.createElement("div");
+      message.className = "message";
+      message.textContent = text;
+      
+      if (type === "user") {
+        wrapper.appendChild(message);
+        wrapper.appendChild(avatar);
+      } else {
+        wrapper.appendChild(avatar);
+        wrapper.appendChild(message);
+      }
+      
+      chat.appendChild(wrapper);
       chat.scrollTop = chat.scrollHeight;
-      return div;
+      return message;
     }
 
     async function typeText(element, text) {
       element.textContent = "";
       for (let i = 0; i < text.length; i++) {
         element.textContent += text[i];
-        await new Promise(r => setTimeout(r, 15));
+        await new Promise(r => setTimeout(r, 10));
         chat.scrollTop = chat.scrollHeight;
       }
     }
@@ -191,14 +443,19 @@
       const date = dateInput.value;
       const time = timeInput.value;
 
-      if (!activity || !location || !date) return;
+      if (!activity || !location || !date) {
+        alert("Please fill in activity, location, and date");
+        return;
+      }
 
       isProcessing = true;
       analyzeBtn.disabled = true;
-      hideInputs();
+      analyzeBtn.innerHTML = '<span>⏳</span> Analyzing...';
 
-      addMessage(activity, "user");
-      const assistantBubble = addMessage("Analyzing conditions…", "assistant");
+      const userMessage = `Activity: ${activity}\nLocation: ${location}\nDate: ${date}${time ? `\nTime: ${time}` : ''}`;
+      addMessage(userMessage, "user");
+      
+      const assistantBubble = addMessage("Analyzing heat conditions and preparing recommendations...", "assistant");
 
       lastPayload = {
         activity_description: activity,
@@ -217,52 +474,73 @@
         const data = await res.json();
 
         const formatted =
-`Planning Decision:
-${data.decision.verdict}
+`🎯 Planning Decision: ${data.decision.verdict}
 
-Reason:
+💡 Reason:
 ${data.decision.reason}
 
 ────────────────────────
 
-Location:
-${data.location}
-
-Date:
-${date}
+📍 Location: ${data.location}
+📅 Date: ${date}
 
 ${data.planning_explanation}`;
 
         await typeText(assistantBubble, formatted);
+        
+        // Show PDF button after successful analysis
+        pdfBtn.style.display = "flex";
+        
       } catch (err) {
-        assistantBubble.textContent = "Something went wrong. Please try again.";
+        assistantBubble.textContent = "⚠️ Something went wrong. Please try again or check your connection.";
       } finally {
-        showInputs();
+        isProcessing = false;
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = '<span>✨</span> Analyze Conditions';
       }
     }
 
     async function downloadPDF() {
       if (!lastPayload) {
-        alert("Run an analysis first.");
+        alert("Please run an analysis first before downloading the PDF.");
         return;
       }
 
-      const res = await fetch(`${API_BASE}/heatwave/planning/pdf`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(lastPayload)
-      });
+      pdfBtn.disabled = true;
+      pdfBtn.innerHTML = '<span>⏳</span> Generating...';
 
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
+      try {
+        const res = await fetch(`${API_BASE}/heatwave/planning/pdf`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(lastPayload)
+        });
 
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "heatwave_planning_summary.pdf";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "heatwave_planning_summary.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        
+        window.URL.revokeObjectURL(url);
+      } catch (err) {
+        alert("Failed to generate PDF. Please try again.");
+      } finally {
+        pdfBtn.disabled = false;
+        pdfBtn.innerHTML = '<span>📄</span> Download PDF';
+      }
     }
+
+    // Allow Enter key to submit
+    userInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter" && !isProcessing) {
+        send();
+      }
+    });
   </script>
 </body>
 </html>
